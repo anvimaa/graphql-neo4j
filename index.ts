@@ -5,6 +5,9 @@ import neo4j from "neo4j-driver";
 import { Neo4jGraphQL } from "@neo4j/graphql";
 import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
+import { readFileSync } from 'fs';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 // Load environment variables
 const uri = process.env.NEO4J_URI as string;
@@ -16,17 +19,12 @@ const driver = neo4j.driver(
     neo4j.auth.basic(username, password)
 );
 
-const typeDefs = `#graphql
-    type Movie @node {
-        title: String
-        actors: [Person!]! @relationship(type: "ACTED_IN", direction: IN)
-    }
+// Get current directory in ES module scope
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-    type Person @node {
-        name: String
-        movies: [Movie!]! @relationship(type: "ACTED_IN", direction: OUT)
-    }
-`;
+// Load GraphQL schema from external file
+const typeDefs = readFileSync(resolve(__dirname, 'schema.graphql'), 'utf8');
 
 const neoSchema = new Neo4jGraphQL({ typeDefs, driver });
 

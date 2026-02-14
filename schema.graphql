@@ -1,0 +1,9 @@
+type Movie @node {
+    title: String
+    actors: [Person!]! @relationship(type: "ACTED_IN", direction: IN)
+}
+
+type Person @node {
+    name: String
+    movies: [Movie!]! @relationship(type: "ACTED_IN", direction: OUT)
+}
